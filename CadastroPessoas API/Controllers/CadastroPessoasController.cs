@@ -4,12 +4,17 @@ using System;
 using CadastroPessoas_API.Models;
 using System.Reflection;
 
+
+
 namespace CadastroPessoas_API.Controllers
 {
+
     [ApiController]
     [Route("[controller]")]
     public class CadastroPessoasController : ControllerBase
     {
+
+
         private readonly ILogger<CadastroPessoasController> _logger;
 
         public CadastroPessoasController(ILogger<CadastroPessoasController> logger)
@@ -17,14 +22,17 @@ namespace CadastroPessoas_API.Controllers
             _logger = logger;
         }
 
-        public List<Cadastro> pessoas = new List<Cadastro>();
-        public int id_counter = 1;
 
-
+        
 
         [HttpGet("")]
         public IActionResult Get_Pessoas()
         {
+            List<Cadastro> pessoas = new List<Cadastro>();
+            pessoas.Add(new Cadastro(1, "Cleberson", "1423432", "12/07/2023"));
+            pessoas.Add(new Cadastro(2, "Vivaldi", "5332756", "10/02/1984"));
+            pessoas.Add(new Cadastro(3, "Gopher", "65465436", "05/09/1989"));
+
             return Ok(pessoas);
         }
 
@@ -33,23 +41,35 @@ namespace CadastroPessoas_API.Controllers
         [HttpGet("{id:int}")]
         public IActionResult Get_Pessoa([FromRoute]int id)
         {
+            List<Cadastro> pessoas = new List<Cadastro>();
+            pessoas.Add(new Cadastro(1, "Cleberson", "1423432", "12/07/2023"));
+            pessoas.Add(new Cadastro(2, "Vivaldi", "5332756", "10/02/1984"));
+            pessoas.Add(new Cadastro(3, "Gopher", "65465436", "05/09/1989"));
             return Ok(pessoas.FirstOrDefault(p => p.Id == id));
         }
 
-        [HttpPost("/new")]
-        public IActionResult Create([FromBody] Cadastro model)
+        [HttpPost]
+        public IActionResult Create([FromBody] Cadastro pessoa)
         {
-            model.Id = id_counter;
-            pessoas.Add(model);
+            List<Cadastro> pessoas = new List<Cadastro>();
+            pessoas.Add(new Cadastro(1, "Cleberson", "1423432", "12/07/2023"));
+            pessoas.Add(new Cadastro(2, "Vivaldi", "5332756", "10/02/1984"));
+            pessoas.Add(new Cadastro(3, "Gopher", "65465436", "05/09/1989"));
+            int id_counter = 4;
+            pessoa.Id = id_counter;
             id_counter++;
 
-            return StatusCode(StatusCodes.Status201Created, model);
+
+            pessoas.Add(pessoa);
+
+
+            return StatusCode(StatusCodes.Status201Created, pessoas);
 
         }
 
 
 
-        [HttpPut("/edit")]
+        [HttpPut("")]
         public IActionResult Update([FromQuery] int id, [FromBody] Cadastro model)
         {
             if (id == 0)
@@ -57,22 +77,42 @@ namespace CadastroPessoas_API.Controllers
                 return BadRequest("Este id não pode ser atualizado");
             }
 
-            pessoas.Insert(id, model);
-            return Ok(model);
+            List<Cadastro> pessoas = new List<Cadastro>();
+            pessoas.Add(new Cadastro(1, "Cleberson", "1423432", "12/07/2023"));
+            pessoas.Add(new Cadastro(2, "Vivaldi", "5332756", "10/02/1984"));
+            pessoas.Add(new Cadastro(3, "Gopher", "65465436", "05/09/1989"));
+
+            Cadastro pessoa_antiga = pessoas.FirstOrDefault(p => p.Id == id);
+
+            if (pessoa_antiga == null)
+            {
+                return Ok($"Usuário com ID:{id} não encontrado!");
+            }
+
+            pessoas.Remove(pessoa_antiga);
+            pessoas.Insert(id - 1, model);
+            return Ok(pessoas);
+
+
+
         }
 
 
 
-        [HttpDelete("delete")]
+        [HttpDelete("")]
         public IActionResult Delete([FromQuery] int id)
         {
+            List<Cadastro> pessoas = new List<Cadastro>();
+            pessoas.Add(new Cadastro(1, "Cleberson", "1423432", "12/07/2023"));
+            pessoas.Add(new Cadastro(2, "Vivaldi", "5332756", "10/02/1984"));
+            pessoas.Add(new Cadastro(3, "Gopher", "65465436", "05/09/1989"));
 
             if (id == 0)
             {
                 return BadRequest("Este id não pode ser deletado");
             } else
             {
-                Cadastro pessoa = (Cadastro)Get_Pessoa(id);
+                Cadastro pessoa = pessoas.FirstOrDefault(p => p.Id == id);
 
                 if (pessoa == null)
                 {
@@ -81,7 +121,7 @@ namespace CadastroPessoas_API.Controllers
                 else
                 {
                     pessoas.Remove(pessoa);
-                    return Ok(pessoa);
+                    return Ok(pessoas);
                 }
             }
 
